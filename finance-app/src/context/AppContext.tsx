@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { AppData, Loan, LoanPayment, Transaction } from '../types';
+import { AppData, Loan, LoanPayment, Transaction, TransactionType } from '../types';
 import { emptyAppData } from '../finance';
 import { loadAppData, saveAppData } from '../storage';
 
@@ -26,6 +26,7 @@ interface AppContextValue {
   deleteLoan: (id: string) => void;
   addLoanPayment: (loanId: string, payment: Omit<LoanPayment, 'id'>) => void;
   deleteLoanPayment: (loanId: string, paymentId: string) => void;
+  addCategory: (type: TransactionType, name: string) => void;
 }
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
@@ -116,6 +117,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
+  const addCategory = useCallback((type: TransactionType, name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setData((prev) => {
+      const list = prev.customCategories[type];
+      if (list.some((c) => c.toLowerCase() === trimmed.toLowerCase())) return prev;
+      return {
+        ...prev,
+        customCategories: { ...prev.customCategories, [type]: [...list, trimmed] },
+      };
+    });
+  }, []);
+
   const value = useMemo<AppContextValue>(
     () => ({
       data,
@@ -128,6 +142,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       deleteLoan,
       addLoanPayment,
       deleteLoanPayment,
+      addCategory,
     }),
     [
       data,
@@ -140,6 +155,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       deleteLoan,
       addLoanPayment,
       deleteLoanPayment,
+      addCategory,
     ]
   );
 

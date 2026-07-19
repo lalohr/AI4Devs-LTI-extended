@@ -1,13 +1,22 @@
 export type TransactionType = 'income' | 'expense';
 
+export interface LineItem {
+  id: string;
+  name: string;
+  amount: number;
+}
+
 export interface Transaction {
   id: string;
   type: TransactionType;
+  /** Total amount. For itemized transactions this is the sum of `items`. */
   amount: number;
   category: string;
   note: string;
   /** ISO date string (YYYY-MM-DD) */
   date: string;
+  /** Optional line items (e.g. category "Paid Material": cement 50, iron 100). */
+  items?: LineItem[];
 }
 
 export type LoanPaymentKind = 'principal' | 'interest';
@@ -43,9 +52,16 @@ export interface Loan {
   payments: LoanPayment[];
 }
 
+export interface CustomCategories {
+  income: string[];
+  expense: string[];
+}
+
 export interface AppData {
   transactions: Transaction[];
   loans: Loan[];
+  /** User-added categories, kept separate from the built-in defaults. */
+  customCategories: CustomCategories;
 }
 
 export const DEFAULT_INCOME_CATEGORIES = [
@@ -61,6 +77,7 @@ export const DEFAULT_EXPENSE_CATEGORIES = [
   'Rent',
   'Services',
   'Shopping',
+  'Paid Material',
   'Loans',
   'Interest',
   'Food',

@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { AppProvider, useApp } from './src/context/AppContext';
 import DashboardScreen from './src/screens/DashboardScreen';
 import TransactionsScreen from './src/screens/TransactionsScreen';
@@ -16,11 +17,12 @@ import LoansScreen from './src/screens/LoansScreen';
 import { colors, spacing } from './src/theme';
 
 type TabKey = 'dashboard' | 'money' | 'loans';
+type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
-const TABS: { key: TabKey; label: string; icon: string }[] = [
-  { key: 'dashboard', label: 'Home', icon: '◎' },
-  { key: 'money', label: 'Money', icon: '⇅' },
-  { key: 'loans', label: 'Loans', icon: '☰' },
+const TABS: { key: TabKey; label: string; icon: IconName }[] = [
+  { key: 'dashboard', label: 'Home', icon: 'home' },
+  { key: 'money', label: 'Money', icon: 'swap-vertical' },
+  { key: 'loans', label: 'Loans', icon: 'people' },
 ];
 
 export default function App() {
@@ -61,11 +63,11 @@ function Root() {
                 style={styles.tab}
                 onPress={() => setTab(t.key)}
               >
-                <Text
-                  style={[styles.tabIcon, active && styles.tabActive]}
-                >
-                  {t.icon}
-                </Text>
+                <Ionicons
+                  name={t.icon}
+                  size={22}
+                  color={active ? colors.primary : colors.textMuted}
+                />
                 <Text
                   style={[styles.tabLabel, active && styles.tabActive]}
                 >
@@ -96,7 +98,6 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
   },
   tab: { flex: 1, alignItems: 'center', paddingVertical: spacing.xs },
-  tabIcon: { fontSize: 20, color: colors.textMuted },
   tabLabel: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
   tabActive: { color: colors.primary, fontWeight: '700' },
 });

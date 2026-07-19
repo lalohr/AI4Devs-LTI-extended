@@ -1,12 +1,15 @@
 import {
+  categoriesFor,
   daysBetween,
   filterTransactionsByPeriod,
   formatCurrency,
   periodStartIso,
+  sumLineItems,
   summarizeLoan,
   summarizeLoans,
   summarizeTransactions,
 } from './finance';
+import { DEFAULT_EXPENSE_CATEGORIES } from './types';
 import { Loan, Transaction } from './types';
 
 function txn(partial: Partial<Transaction>): Transaction {
@@ -191,6 +194,34 @@ describe('summarizeLoans', () => {
     expect(result.totalLent).toBe(1500);
     expect(result.totalOutstanding).toBe(1000);
     expect(result.activeLoans).toBe(1);
+  });
+});
+
+describe('sumLineItems', () => {
+  it('sums line item amounts', () => {
+    expect(
+      sumLineItems([
+        { id: '1', name: 'Cement', amount: 50 },
+        { id: '2', name: 'Iron', amount: 100 },
+      ])
+    ).toBe(150);
+  });
+
+  it('returns 0 for no items', () => {
+    expect(sumLineItems([])).toBe(0);
+  });
+});
+
+describe('categoriesFor', () => {
+  it('includes defaults plus custom categories', () => {
+    const result = categoriesFor('expense', { income: [], expense: ['Tuition'] });
+    expect(result).toEqual([...DEFAULT_EXPENSE_CATEGORIES, 'Tuition']);
+  });
+
+  it('de-duplicates case-insensitively', () => {
+    const result = categoriesFor('expense', { income: [], expense: ['rent', 'Tuition'] });
+    expect(result.filter((c) => c.toLowerCase() === 'rent')).toHaveLength(1);
+    expect(result).toContain('Tuition');
   });
 });
 

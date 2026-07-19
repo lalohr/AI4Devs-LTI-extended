@@ -1,4 +1,12 @@
-import { AppData, Loan, Transaction } from './types';
+import {
+  AppData,
+  DEFAULT_EXPENSE_CATEGORIES,
+  DEFAULT_INCOME_CATEGORIES,
+  LineItem,
+  Loan,
+  Transaction,
+  TransactionType,
+} from './types';
 
 /** Number of days between two ISO date strings (a - b), never negative. */
 export function daysBetween(laterIso: string, earlierIso: string): number {
@@ -123,7 +131,39 @@ export function summarizeLoans(loans: Loan[], asOfIso: string): LoansSummary {
 }
 
 export function emptyAppData(): AppData {
-  return { transactions: [], loans: [] };
+  return {
+    transactions: [],
+    loans: [],
+    customCategories: { income: [], expense: [] },
+  };
+}
+
+/** Sum of a transaction's line items. */
+export function sumLineItems(items: LineItem[]): number {
+  return items.reduce((total, item) => total + item.amount, 0);
+}
+
+/**
+ * Built-in defaults plus user-added categories for a transaction type,
+ * de-duplicated while preserving order (defaults first).
+ */
+export function categoriesFor(
+  type: TransactionType,
+  custom: { income: string[]; expense: string[] }
+): string[] {
+  const defaults =
+    type === 'income' ? DEFAULT_INCOME_CATEGORIES : DEFAULT_EXPENSE_CATEGORIES;
+  const extra = type === 'income' ? custom.income : custom.expense;
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const c of [...defaults, ...extra]) {
+    const key = c.trim();
+    if (key && !seen.has(key.toLowerCase())) {
+      seen.add(key.toLowerCase());
+      result.push(key);
+    }
+  }
+  return result;
 }
 
 export function todayIso(): string {

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import {
   Pressable,
   StyleSheet,
@@ -9,6 +10,20 @@ import {
   ViewStyle,
 } from 'react-native';
 import { colors, radius, spacing } from '../theme';
+
+type IconName = React.ComponentProps<typeof Ionicons>['name'];
+
+export function Icon({
+  name,
+  size = 18,
+  color = colors.text,
+}: {
+  name: IconName;
+  size?: number;
+  color?: string;
+}) {
+  return <Ionicons name={name} size={size} color={color} />;
+}
 
 export function Card({
   children,
@@ -24,11 +39,14 @@ export function Button({
   label,
   onPress,
   variant = 'primary',
+  icon,
 }: {
   label: string;
   onPress: () => void;
   variant?: 'primary' | 'ghost' | 'danger';
+  icon?: IconName;
 }) {
+  const textColor = variant === 'ghost' ? colors.text : colors.primaryText;
   return (
     <Pressable
       onPress={onPress}
@@ -39,6 +57,7 @@ export function Button({
         pressed && styles.buttonPressed,
       ]}
     >
+      {icon ? <Icon name={icon} size={16} color={textColor} /> : null}
       <Text
         style={[
           styles.buttonText,
@@ -47,6 +66,26 @@ export function Button({
       >
         {label}
       </Text>
+    </Pressable>
+  );
+}
+
+export function IconButton({
+  label,
+  icon,
+  onPress,
+}: {
+  label: string;
+  icon: IconName;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.iconButton, pressed && styles.buttonPressed]}
+    >
+      <Icon name={icon} size={16} color={colors.primaryText} />
+      <Text style={styles.iconButtonText}>{label}</Text>
     </Pressable>
   );
 }
@@ -146,8 +185,21 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
   },
+  iconButton: {
+    backgroundColor: colors.primary,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  iconButtonText: { color: colors.primaryText, fontWeight: '700', fontSize: 14 },
   buttonGhost: {
     backgroundColor: 'transparent',
     borderWidth: 1,

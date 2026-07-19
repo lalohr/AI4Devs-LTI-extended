@@ -9,9 +9,14 @@ export async function loadAppData(): Promise<AppData> {
     const raw = await AsyncStorage.getItem(STORAGE_KEY);
     if (!raw) return emptyAppData();
     const parsed = JSON.parse(raw) as Partial<AppData>;
+    const custom = parsed.customCategories;
     return {
       transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [],
       loans: Array.isArray(parsed.loans) ? parsed.loans : [],
+      customCategories: {
+        income: Array.isArray(custom?.income) ? custom.income : [],
+        expense: Array.isArray(custom?.expense) ? custom.expense : [],
+      },
     };
   } catch {
     return emptyAppData();

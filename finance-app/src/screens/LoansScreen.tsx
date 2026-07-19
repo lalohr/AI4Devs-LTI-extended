@@ -12,7 +12,15 @@ import { useApp } from '../context/AppContext';
 import { formatCurrency, summarizeLoan, todayIso } from '../finance';
 import { Loan, LoanPaymentKind } from '../types';
 import { colors, radius, spacing } from '../theme';
-import { Button, Card, EmptyState, Field, Segmented } from '../components/ui';
+import {
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  Icon,
+  IconButton,
+  Segmented,
+} from '../components/ui';
 
 export default function LoansScreen() {
   const { data } = useApp();
@@ -31,9 +39,7 @@ export default function LoansScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.heading}>Loans</Text>
-        <Pressable style={styles.addButton} onPress={() => setAddOpen(true)}>
-          <Text style={styles.addButtonText}>+ New</Text>
-        </Pressable>
+        <IconButton label="New" icon="add" onPress={() => setAddOpen(true)} />
       </View>
 
       <FlatList
@@ -41,7 +47,7 @@ export default function LoansScreen() {
         keyExtractor={(l) => l.id}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
-          <EmptyState text="No loans yet. Tap “+ New” to record money you lent to someone." />
+          <EmptyState text="No loans yet. Tap “New” to record money you lent to someone." />
         }
         renderItem={({ item }) => {
           const s = summarizeLoan(item, todayIso());
@@ -146,9 +152,9 @@ function AddLoanModal({
             <Field label="Start date" value={startDate} onChangeText={setStartDate} placeholder="YYYY-MM-DD" />
             <Field label="Note (optional)" value={note} onChangeText={setNote} placeholder="e.g. for car repair" />
             <View style={styles.modalActions}>
-              <Button label="Cancel" variant="ghost" onPress={onClose} />
+              <Button label="Cancel" variant="ghost" icon="close" onPress={onClose} />
               <View style={styles.actionSpacer} />
-              <Button label="Save loan" onPress={save} />
+              <Button label="Save loan" icon="checkmark" onPress={save} />
             </View>
           </ScrollView>
         </View>
@@ -190,7 +196,8 @@ function LoanDetail({ loan, onBack }: { loan: Loan; onBack: () => void }) {
       contentContainerStyle={styles.detailContent}
     >
       <Pressable onPress={onBack} style={styles.backLink}>
-        <Text style={styles.backText}>‹ Back to loans</Text>
+        <Icon name="chevron-back" size={16} color={colors.primary} />
+        <Text style={styles.backText}>Back to loans</Text>
       </Pressable>
 
       <Text style={styles.heading}>{loan.borrower.name}</Text>
@@ -235,9 +242,7 @@ function LoanDetail({ loan, onBack }: { loan: Loan; onBack: () => void }) {
 
       <View style={styles.paymentsHeader}>
         <Text style={styles.subheading}>Payments</Text>
-        <Pressable style={styles.addButton} onPress={() => setPayOpen(true)}>
-          <Text style={styles.addButtonText}>+ Record</Text>
-        </Pressable>
+        <IconButton label="Record" icon="cash-outline" onPress={() => setPayOpen(true)} />
       </View>
 
       {loan.payments.length === 0 ? (
@@ -264,7 +269,7 @@ function LoanDetail({ loan, onBack }: { loan: Loan; onBack: () => void }) {
                 onPress={() => deleteLoanPayment(loan.id, p.id)}
                 style={styles.payDelete}
               >
-                <Text style={styles.payDeleteText}>✕</Text>
+                <Icon name="trash-outline" size={16} color={colors.textMuted} />
               </Pressable>
             </View>
           ))}
@@ -275,6 +280,7 @@ function LoanDetail({ loan, onBack }: { loan: Loan; onBack: () => void }) {
         <Button
           label="Delete loan"
           variant="danger"
+          icon="trash-outline"
           onPress={() => {
             deleteLoan(loan.id);
             onBack();
@@ -334,9 +340,9 @@ function LoanDetail({ loan, onBack }: { loan: Loan; onBack: () => void }) {
               placeholder="e.g. partial repayment"
             />
             <View style={styles.modalActions}>
-              <Button label="Cancel" variant="ghost" onPress={() => setPayOpen(false)} />
+              <Button label="Cancel" variant="ghost" icon="close" onPress={() => setPayOpen(false)} />
               <View style={styles.actionSpacer} />
-              <Button label="Save" onPress={savePayment} />
+              <Button label="Save" icon="checkmark" onPress={savePayment} />
             </View>
           </View>
         </View>
@@ -356,13 +362,6 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.sm,
   },
   heading: { color: colors.text, fontSize: 28, fontWeight: '700' },
-  addButton: {
-    backgroundColor: colors.primary,
-    borderRadius: radius.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-  },
-  addButtonText: { color: colors.primaryText, fontWeight: '700' },
   list: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xl * 2 },
   loanCard: { gap: spacing.xs },
   loanTop: {
@@ -382,7 +381,12 @@ const styles = StyleSheet.create({
   loanOwedLabel: { color: colors.textMuted, fontSize: 13 },
   loanOwed: { color: colors.warning, fontSize: 18, fontWeight: '700' },
   detailContent: { padding: spacing.lg, paddingBottom: spacing.xl * 2, gap: spacing.sm },
-  backLink: { marginBottom: spacing.xs },
+  backLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    marginBottom: spacing.xs,
+  },
   backText: { color: colors.primary, fontSize: 15, fontWeight: '600' },
   contact: { color: colors.textMuted, fontSize: 14 },
   summaryCard: { marginTop: spacing.md, gap: spacing.sm },
@@ -416,7 +420,6 @@ const styles = StyleSheet.create({
   payMeta: { color: colors.textMuted, fontSize: 12, marginTop: 2 },
   payAmount: { color: colors.text, fontSize: 15, fontWeight: '700' },
   payDelete: { paddingLeft: spacing.md },
-  payDeleteText: { color: colors.textMuted, fontSize: 16 },
   deleteLoanWrap: { marginTop: spacing.xl },
   modalBackdrop: {
     flex: 1,
