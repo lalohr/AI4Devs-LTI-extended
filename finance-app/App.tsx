@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
   Platform,
   Pressable,
   SafeAreaView,
@@ -8,7 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { AppProvider } from './src/context/AppContext';
+import { AppProvider, useApp } from './src/context/AppContext';
 import DashboardScreen from './src/screens/DashboardScreen';
 import TransactionsScreen from './src/screens/TransactionsScreen';
 import LoansScreen from './src/screens/LoansScreen';
@@ -23,18 +24,35 @@ const TABS: { key: TabKey; label: string; icon: string }[] = [
 ];
 
 export default function App() {
-  const [tab, setTab] = useState<TabKey>('dashboard');
-
   return (
     <AppProvider>
-      <SafeAreaView style={styles.safe}>
+      <Root />
+    </AppProvider>
+  );
+}
+
+function Root() {
+  const { isLoaded } = useApp();
+  const [tab, setTab] = useState<TabKey>('dashboard');
+
+  if (!isLoaded) {
+    return (
+      <SafeAreaView style={[styles.safe, styles.loading]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-        <View style={styles.screen}>
-          {tab === 'dashboard' && <DashboardScreen />}
-          {tab === 'money' && <TransactionsScreen />}
-          {tab === 'loans' && <LoansScreen />}
-        </View>
-        <View style={styles.tabBar}>
+        <ActivityIndicator color={colors.primary} size="large" />
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      <View style={styles.screen}>
+        {tab === 'dashboard' && <DashboardScreen />}
+        {tab === 'money' && <TransactionsScreen />}
+        {tab === 'loans' && <LoansScreen />}
+      </View>
+      <View style={styles.tabBar}>
           {TABS.map((t) => {
             const active = t.key === tab;
             return (
@@ -57,8 +75,7 @@ export default function App() {
             );
           })}
         </View>
-      </SafeAreaView>
-    </AppProvider>
+    </SafeAreaView>
   );
 }
 
@@ -68,6 +85,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
+  loading: { alignItems: 'center', justifyContent: 'center' },
   screen: { flex: 1 },
   tabBar: {
     flexDirection: 'row',
