@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { addCandidate, findCandidateById, updateCandidateStage, getAllCandidates } from '../../application/services/candidateService';
+import { parseNumericId } from '../utils/httpHelpers';
 
 /**
  * @route POST /candidates
@@ -27,8 +28,8 @@ export const addCandidateController = async (req: Request, res: Response) => {
  */
 export const getCandidateById = async (req: Request, res: Response) => {
     try {
-        const id = parseInt(req.params.id);
-        if (isNaN(id)) {
+        const id = parseNumericId(req.params.id);
+        if (id === null) {
             return res.status(400).json({ error: 'Invalid ID format' });
         }
         const candidate = await findCandidateById(id);

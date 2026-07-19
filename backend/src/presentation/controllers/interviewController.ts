@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { createInterview, updateInterview, deleteInterview } from '../../application/services/interviewService';
 import { validateInterviewData, validateInterviewUpdateData, validateInterviewDeletion } from '../../application/validator';
+import { parseNumericId } from '../utils/httpHelpers';
 
 /**
  * @route POST /candidates/:candidateId/interviews
@@ -10,10 +11,10 @@ import { validateInterviewData, validateInterviewUpdateData, validateInterviewDe
 export const createInterviewController = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // Extract candidateId from URL params
-        const candidateId = parseInt(req.params.candidateId);
+        const candidateId = parseNumericId(req.params.candidateId);
         
         // Validate candidateId format
-        if (isNaN(candidateId)) {
+        if (candidateId === null) {
             return res.status(400).json({
                 message: 'Validation error',
                 error: 'Invalid candidate ID format'
@@ -71,11 +72,11 @@ export const createInterviewController = async (req: Request, res: Response, nex
 export const updateInterviewController = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // Extract candidateId and interviewId from URL params
-        const candidateId = parseInt(req.params.candidateId);
-        const interviewId = parseInt(req.params.interviewId);
+        const candidateId = parseNumericId(req.params.candidateId);
+        const interviewId = parseNumericId(req.params.interviewId);
         
         // Validate candidateId format
-        if (isNaN(candidateId)) {
+        if (candidateId === null) {
             return res.status(400).json({
                 message: 'Validation error',
                 error: 'Invalid candidate ID format'
@@ -83,7 +84,7 @@ export const updateInterviewController = async (req: Request, res: Response, nex
         }
 
         // Validate interviewId format
-        if (isNaN(interviewId)) {
+        if (interviewId === null) {
             return res.status(400).json({
                 message: 'Validation error',
                 error: 'Invalid interview ID format'
@@ -150,11 +151,11 @@ export const updateInterviewController = async (req: Request, res: Response, nex
 export const deleteInterviewController = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // Extract candidateId and interviewId from URL params
-        const candidateId = parseInt(req.params.candidateId);
-        const interviewId = parseInt(req.params.interviewId);
+        const candidateId = parseNumericId(req.params.candidateId);
+        const interviewId = parseNumericId(req.params.interviewId);
         
         // Validate candidateId format
-        if (isNaN(candidateId)) {
+        if (candidateId === null) {
             return res.status(400).json({
                 message: 'Validation error',
                 error: 'Invalid candidate ID format'
@@ -162,7 +163,7 @@ export const deleteInterviewController = async (req: Request, res: Response, nex
         }
 
         // Validate interviewId format
-        if (isNaN(interviewId)) {
+        if (interviewId === null) {
             return res.status(400).json({
                 message: 'Validation error',
                 error: 'Invalid interview ID format'
