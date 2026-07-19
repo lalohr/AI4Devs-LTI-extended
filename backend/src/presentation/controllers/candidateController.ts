@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { addCandidate, findCandidateById, updateCandidateStage, getAllCandidates } from '../../application/services/candidateService';
+import { Logger } from '../../infrastructure/logger';
 
 /**
  * @route POST /candidates
@@ -37,6 +38,7 @@ export const getCandidateById = async (req: Request, res: Response) => {
         }
         res.json(candidate);
     } catch (error) {
+        Logger.error('Error retrieving candidate by ID:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
@@ -62,7 +64,7 @@ export const updateCandidateStageController = async (req: Request, res: Response
         res.status(200).json({ message: 'Candidate stage updated successfully', data: updatedCandidate });
     } catch (error: unknown) {
         if (error instanceof Error) {
-            if (error.message === 'Error: Application not found') {
+            if (error.message === 'Application not found') {
                 res.status(404).json({ message: 'Application not found', error: error.message });
             } else {
                 res.status(400).json({ message: 'Error updating candidate stage', error: error.message });
