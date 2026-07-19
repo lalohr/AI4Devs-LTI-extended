@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import { prisma } from './infrastructure/prismaClient';
 import dotenv from 'dotenv';
 import candidateRoutes from './routes/candidateRoutes';
 import positionRoutes from './routes/positionRoutes';
@@ -18,7 +19,6 @@ declare global {
 }
 
 dotenv.config();
-const prisma = new PrismaClient();
 
 export const app = express();
 export default app;

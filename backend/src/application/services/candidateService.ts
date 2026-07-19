@@ -4,9 +4,7 @@ import { Education } from '../../domain/models/Education';
 import { WorkExperience } from '../../domain/models/WorkExperience';
 import { Resume } from '../../domain/models/Resume';
 import { Application } from '../../domain/models/Application';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../infrastructure/prismaClient';
 
 export const addCandidate = async (candidateData: any) => {
     try {

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { getCandidatesByPositionService, getInterviewFlowByPositionService, getAllPositionsService, getCandidateNamesByPositionService, getPositionByIdService, updatePositionService } from '../../application/services/positionService';
 import { validatePositionUpdateData } from '../../application/validator';
+import { getErrorMessage, parseNumericId } from '../utils/httpHelpers';
 
 
 export const getAllPositions = async (req: Request, res: Response) => {
@@ -8,16 +9,16 @@ export const getAllPositions = async (req: Request, res: Response) => {
         const positions = await getAllPositionsService();
         res.status(200).json(positions);
     } catch (error) {
-        res.status(500).json({ message: 'Error retrieving positions', error: error instanceof Error ? error.message : String(error) });
+        res.status(500).json({ message: 'Error retrieving positions', error: getErrorMessage(error) });
     }
 };
 
 export const getPositionById = async (req: Request, res: Response) => {
     try {
-        const positionId = parseInt(req.params.id);
+        const positionId = parseNumericId(req.params.id);
         
         // Validate position ID format
-        if (isNaN(positionId)) {
+        if (positionId === null) {
             return res.status(400).json({ 
                 message: 'Invalid position ID format',
                 error: 'Position ID must be a valid number'
@@ -54,11 +55,7 @@ export const getCandidatesByPosition = async (req: Request, res: Response) => {
         const candidates = await getCandidatesByPositionService(positionId);
         res.status(200).json(candidates);
     } catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: 'Error retrieving candidates', error: error.message });
-        } else {
-            res.status(500).json({ message: 'Error retrieving candidates', error: String(error) });
-        }
+        res.status(500).json({ message: 'Error retrieving candidates', error: getErrorMessage(error) });
     }
 };
 
@@ -82,18 +79,14 @@ export const getCandidateNamesByPosition = async (req: Request, res: Response) =
         const candidateNames = await getCandidateNamesByPositionService(positionId);
         res.status(200).json(candidateNames);
     } catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: 'Error retrieving candidate names', error: error.message });
-        } else {
-            res.status(500).json({ message: 'Error retrieving candidate names', error: String(error) });
-        }
+        res.status(500).json({ message: 'Error retrieving candidate names', error: getErrorMessage(error) });
     }
 };
 
 export const updatePosition = async (req: Request, res: Response) => {
     try {
-        const positionId = parseInt(req.params.id);
-        if (isNaN(positionId)) {
+        const positionId = parseNumericId(req.params.id);
+        if (positionId === null) {
             return res.status(400).json({
                 message: 'Invalid position ID format',
                 error: 'Position ID must be a valid number'

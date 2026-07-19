@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
 import { Interview } from './Interview';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../infrastructure/prismaClient';
 
 export class Application {
     id?: number;
