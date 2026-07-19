@@ -1,6 +1,8 @@
 import {
   daysBetween,
+  filterTransactionsByPeriod,
   formatCurrency,
+  periodStartIso,
   summarizeLoan,
   summarizeLoans,
   summarizeTransactions,
@@ -60,6 +62,56 @@ describe('summarizeTransactions', () => {
       totalExpense: 0,
       balance: 0,
     });
+  });
+});
+
+describe('periodStartIso', () => {
+  it('returns the same day for day period', () => {
+    expect(periodStartIso('day', '2024-03-15')).toBe('2024-03-15');
+  });
+
+  it('returns Monday for week period', () => {
+    // 2024-03-15 is a Friday; Monday of that week is 2024-03-11
+    expect(periodStartIso('week', '2024-03-15')).toBe('2024-03-11');
+  });
+
+  it('returns first of month for month period', () => {
+    expect(periodStartIso('month', '2024-03-15')).toBe('2024-03-01');
+  });
+
+  it('returns first of year for year period', () => {
+    expect(periodStartIso('year', '2024-03-15')).toBe('2024-01-01');
+  });
+
+  it('returns null for all period', () => {
+    expect(periodStartIso('all', '2024-03-15')).toBeNull();
+  });
+});
+
+describe('filterTransactionsByPeriod', () => {
+  const txns = [
+    txn({ date: '2024-03-15' }),
+    txn({ date: '2024-03-10' }),
+    txn({ date: '2024-02-28' }),
+    txn({ date: '2023-12-31' }),
+  ];
+
+  it('filters to the current month', () => {
+    const result = filterTransactionsByPeriod(txns, 'month', '2024-03-15');
+    expect(result.map((t) => t.date)).toEqual(['2024-03-15', '2024-03-10']);
+  });
+
+  it('filters to the current year', () => {
+    const result = filterTransactionsByPeriod(txns, 'year', '2024-03-15');
+    expect(result.map((t) => t.date)).toEqual([
+      '2024-03-15',
+      '2024-03-10',
+      '2024-02-28',
+    ]);
+  });
+
+  it('returns everything for all period', () => {
+    expect(filterTransactionsByPeriod(txns, 'all', '2024-03-15')).toHaveLength(4);
   });
 });
 

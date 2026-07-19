@@ -8,6 +8,40 @@ export function daysBetween(laterIso: string, earlierIso: string): number {
   return diff > 0 ? diff : 0;
 }
 
+export type Period = 'day' | 'week' | 'month' | 'year' | 'all';
+
+/**
+ * Inclusive start date (ISO) of the period containing `refIso`.
+ * Weeks start on Monday. Returns null for 'all' (no lower bound).
+ */
+export function periodStartIso(period: Period, refIso: string): string | null {
+  if (period === 'all') return null;
+  const ref = new Date(refIso + 'T00:00:00Z');
+  const start = new Date(ref);
+  if (period === 'day') {
+    // same day
+  } else if (period === 'week') {
+    const day = ref.getUTCDay(); // 0 = Sunday
+    const diff = (day + 6) % 7; // days since Monday
+    start.setUTCDate(ref.getUTCDate() - diff);
+  } else if (period === 'month') {
+    start.setUTCDate(1);
+  } else if (period === 'year') {
+    start.setUTCMonth(0, 1);
+  }
+  return start.toISOString().slice(0, 10);
+}
+
+export function filterTransactionsByPeriod(
+  transactions: Transaction[],
+  period: Period,
+  refIso: string
+): Transaction[] {
+  const start = periodStartIso(period, refIso);
+  if (!start) return transactions;
+  return transactions.filter((t) => t.date >= start && t.date <= refIso);
+}
+
 export interface CashflowSummary {
   totalIncome: number;
   totalExpense: number;

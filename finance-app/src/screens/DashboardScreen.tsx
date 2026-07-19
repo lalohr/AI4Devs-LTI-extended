@@ -1,22 +1,45 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useApp } from '../context/AppContext';
 import {
+  filterTransactionsByPeriod,
   formatCurrency,
+  Period,
   summarizeLoans,
   summarizeTransactions,
   todayIso,
 } from '../finance';
 import { colors, spacing } from '../theme';
-import { Card, EmptyState } from '../components/ui';
+import { Card, EmptyState, Segmented } from '../components/ui';
+
+const PERIOD_OPTIONS: { label: string; value: Period }[] = [
+  { label: 'Day', value: 'day' },
+  { label: 'Week', value: 'week' },
+  { label: 'Month', value: 'month' },
+  { label: 'Year', value: 'year' },
+  { label: 'All', value: 'all' },
+];
+
+const PERIOD_LABEL: Record<Period, string> = {
+  day: 'today',
+  week: 'this week',
+  month: 'this month',
+  year: 'this year',
+  all: 'all time',
+};
 
 export default function DashboardScreen() {
   const { data } = useApp();
   const today = todayIso();
+  const [period, setPeriod] = useState<Period>('month');
 
+  const periodTransactions = useMemo(
+    () => filterTransactionsByPeriod(data.transactions, period, today),
+    [data.transactions, period, today]
+  );
   const cashflow = useMemo(
-    () => summarizeTransactions(data.transactions),
-    [data.transactions]
+    () => summarizeTransactions(periodTransactions),
+    [periodTransactions]
   );
   const loans = useMemo(
     () => summarizeLoans(data.loans, today),
@@ -32,8 +55,14 @@ export default function DashboardScreen() {
     >
       <Text style={styles.heading}>Overview</Text>
 
+      <Segmented<Period>
+        value={period}
+        onChange={setPeriod}
+        options={PERIOD_OPTIONS}
+      />
+
       <Card style={styles.balanceCard}>
-        <Text style={styles.balanceLabel}>Current balance</Text>
+        <Text style={styles.balanceLabel}>Net {PERIOD_LABEL[period]}</Text>
         <Text
           style={[
             styles.balanceValue,
