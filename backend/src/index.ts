@@ -32,9 +32,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware para permitir CORS desde http://localhost:3000
+// Restrict CORS to an explicit allow-list of origins (configurable via CORS_ORIGIN)
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter((origin) => origin.length > 0);
+
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: allowedOrigins,
   credentials: true
 }));
 
