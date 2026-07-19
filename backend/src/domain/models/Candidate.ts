@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from '@prisma/client';
+import { Logger } from '../../infrastructure/logger';
 import { Education } from './Education';
 import { WorkExperience } from './WorkExperience';
 import { Resume } from './Resume';
@@ -97,13 +98,13 @@ export class Candidate {
                     data: candidateData
                 });
             } catch (error: any) {
-                console.log(error);
+                Logger.error('Error updating candidate:', error);
                 if (error instanceof Prisma.PrismaClientInitializationError) {
                     // Database connection error
-                    throw new Error('No se pudo conectar con la base de datos. Por favor, asegúrese de que el servidor de base de datos esté en ejecución.');
+                    throw new Error('Could not connect to the database. Please make sure the database server is running.');
                 } else if (error.code === 'P2025') {
                     // Record not found error
-                    throw new Error('No se pudo encontrar el registro del candidato con el ID proporcionado.');
+                    throw new Error('Could not find a candidate record with the provided ID.');
                 } else {
                     throw error;
                 }
@@ -116,9 +117,10 @@ export class Candidate {
                 });
                 return result;
             } catch (error: any) {
+                Logger.error('Error creating candidate:', error);
                 if (error instanceof Prisma.PrismaClientInitializationError) {
                     // Database connection error
-                    throw new Error('No se pudo conectar con la base de datos. Por favor, asegúrese de que el servidor de base de datos esté en ejecución.');
+                    throw new Error('Could not connect to the database. Please make sure the database server is running.');
                 } else {
                     throw error;
                 }

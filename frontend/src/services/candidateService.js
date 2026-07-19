@@ -1,5 +1,16 @@
 import axios from 'axios';
 
+const extractErrorMessage = (error, fallback) => {
+    const responseData = error.response?.data;
+    return (
+        responseData?.error ||
+        responseData?.message ||
+        (typeof responseData === 'string' ? responseData : null) ||
+        error.message ||
+        fallback
+    );
+};
+
 export const uploadCV = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -12,7 +23,7 @@ export const uploadCV = async (file) => {
         });
         return response.data; // Devuelve la ruta del archivo y el tipo
     } catch (error) {
-        throw new Error('Error al subir el archivo:', error.response.data);
+        throw new Error(extractErrorMessage(error, 'Error uploading the file'));
     }
 };
 
@@ -21,6 +32,6 @@ export const sendCandidateData = async (candidateData) => {
         const response = await axios.post('http://localhost:3010/candidates', candidateData);
         return response.data;
     } catch (error) {
-        throw new Error('Error al enviar datos del candidato:', error.response.data);
+        throw new Error(extractErrorMessage(error, 'Error sending candidate data'));
     }
 };

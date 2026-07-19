@@ -11,8 +11,8 @@ const prisma = new PrismaClient();
 export const addCandidate = async (candidateData: any) => {
     try {
         validateCandidateData(candidateData); // Validar los datos del candidato
-    } catch (error: any) {
-        throw new Error(error);
+    } catch (error: unknown) {
+        throw error instanceof Error ? error : new Error(String(error));
     }
 
     const candidate = new Candidate(candidateData); // Crear una instancia del modelo Candidate
@@ -82,8 +82,8 @@ export const updateCandidateStage = async (id: number, applicationIdNumber: numb
         await application.save();
 
         return application;
-    } catch (error: any) {
-        throw new Error(error);
+    } catch (error: unknown) {
+        throw error instanceof Error ? error : new Error(String(error));
     }
 };
 
