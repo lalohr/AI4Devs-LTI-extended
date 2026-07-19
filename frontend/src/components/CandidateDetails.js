@@ -178,20 +178,6 @@ const CandidateDetails = ({ candidate, onClose }) => {
         .then((data) => {
           const steps = data?.interviewFlow?.interviewFlow?.interviewSteps ?? [];
           const currentStep = interview.interviewStep;
-          // #region agent log
-          const stepIds = (steps || []).map((s) => (s == null ? 'null' : s.id));
-          fetch('http://127.0.0.1:7242/ingest/01a6f721-0594-4e0b-a031-946eb64c655e', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              location: 'CandidateDetails.js:openEditModal',
-              message: 'interviewFlow steps',
-              data: { currentStepIsNull: currentStep == null, stepIds },
-              timestamp: Date.now(),
-              hypothesisId: 'H4'
-            })
-          }).catch(() => {});
-          // #endregion
           const hasCurrent = currentStep?.id != null && steps.some((s) => Number(s.id) === Number(currentStep.id));
           const stepsToSet = hasCurrent || !currentStep?.id ? steps : [{ id: currentStep.id, name: currentStep.name }, ...steps];
           setEditSteps(stepsToSet);
@@ -809,41 +795,8 @@ const CandidateDetails = ({ candidate, onClose }) => {
 
                   <div className="d-flex gap-2 justify-content-end flex-wrap">
                     {editingInterview != null && isInterviewDeletable(editingInterview) && (() => {
-                      // #region agent log
-                      const apps = candidateDetails?.applications ?? [];
-                      const interviewIdsPerApp = apps.map((a) => ({
-                        appId: a?.id,
-                        interviewIds: (a?.interviews || []).map((x) => (x == null ? 'null' : x.id))
-                      }));
-                      fetch('http://127.0.0.1:7242/ingest/01a6f721-0594-4e0b-a031-946eb64c655e', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          location: 'CandidateDetails.js:appForEdit',
-                          message: 'before find',
-                          data: { editingInterviewId: editingInterview?.id, interviewIdsPerApp },
-                          timestamp: Date.now(),
-                          hypothesisId: 'post-fix'
-                        })
-                      }).catch(() => {});
-                      // #endregion
                       const appForEdit = candidateDetails?.applications?.find((a) =>
-                        (a.interviews || []).some((i) => {
-                          // #region agent log
-                          fetch('http://127.0.0.1:7242/ingest/01a6f721-0594-4e0b-a031-946eb64c655e', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              location: 'CandidateDetails.js:some(i)',
-                              message: 'inside some callback',
-                              data: { iIsNull: i == null, iId: i != null ? i.id : undefined },
-                              timestamp: Date.now(),
-                              hypothesisId: 'post-fix'
-                            })
-                          }).catch(() => {});
-                          // #endregion
-                          return i != null && i.id === editingInterview.id;
-                        })
+                        (a.interviews || []).some((i) => i != null && i.id === editingInterview.id)
                       );
                       return (
                         <Button
