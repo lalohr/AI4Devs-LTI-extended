@@ -5,7 +5,7 @@ async function getTopCandidates(positionId) {
   try {
     const topCandidates = await prisma.application.findMany({
       where: {
-        positionId: parseInt(positionId)
+        positionId: parseInt(positionId),
       },
       select: {
         candidate: {
@@ -13,30 +13,31 @@ async function getTopCandidates(positionId) {
             id: true,
             firstName: true,
             lastName: true,
-            email: true
-          }
+            email: true,
+          },
         },
         interviews: {
           select: {
-            score: true
-          }
-        }
-      }
+            score: true,
+          },
+        },
+      },
     });
 
     // Calcular la puntuación media para cada candidato
-    const candidatesWithScores = topCandidates.map(application => {
+    const candidatesWithScores = topCandidates.map((application) => {
       const scores = application.interviews
-        .map(interview => interview.score)
-        .filter(score => score !== null);
-      
-      const averageScore = scores.length > 0
-        ? scores.reduce((a, b) => a + b, 0) / scores.length
-        : 0;
+        .map((interview) => interview.score)
+        .filter((score) => score !== null);
+
+      const averageScore =
+        scores.length > 0
+          ? scores.reduce((a, b) => a + b, 0) / scores.length
+          : 0;
 
       return {
         ...application.candidate,
-        averageScore: parseFloat(averageScore.toFixed(2))
+        averageScore: parseFloat(averageScore.toFixed(2)),
       };
     });
 
